@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import glob
 import os
 
@@ -57,13 +58,33 @@ for x in range(len(files)):
         stats_dict["Time Zeros"] = selection["GPS:Time"].value_counts()[0]
     except:
         stats_dict["Time Zeros"] = 0
+    # convert dataframe to numpy array
+    selection_array = (selection["GPS:Long"].to_numpy())
+    # remove zeros
+    remove_zeros = selection_array[selection_array != 0] 
+    # remove nan value
+    remove_nan = remove_zeros[np.logical_not(np.isnan(remove_zeros))]
+    # find minmia and maxima values
+    minima = np.min(remove_nan)
+    maxima = np.max(remove_nan)
+    print(minima, maxima)
+    range = maxima - minima
+    if range > 1:
+        long_warning = True
+    else:
+        long_warning = False
     # create log file to make identifing poor quality FLYXXX.DAT files easier
+    
     with open("datcon_output_trim/datcon_output_trim_log.txt", "a") as f:
         print(files[x], file = f)
         print("--------------------", file = f)
         for key in stats_dict:
             print(key, " : ", stats_dict[key], file = f)
         print("total rows : ", num_rows, file = f)
+        if long_warning:
+            print("WARNING large change in longitude", file = f)
+            print("longitude range ")
         print("--------------------", file = f)
+        
     # output selections to csv for QGIS
-    selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
+    #selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
