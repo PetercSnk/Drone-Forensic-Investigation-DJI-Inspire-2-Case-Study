@@ -27,40 +27,43 @@ for x in range(len(files)):
     df = pd.read_csv(files[x], low_memory=False)
     # create new dataframe with only the following selected, top empty row removed
     selection = df.loc[1:,["GPS:Long", "GPS:Lat", "GPS:heightMSL", "GPS:Date", "GPS:Time"]].copy()
-
+    # total rows in selection
     num_rows = len(selection.index)
-
-    if selection["GPS:Long"].notnull().values.any():
+    # count number of null cells
+    stats_dict["Longitude Nulls"] = selection["GPS:Long"].isnull().sum()
+    stats_dict["Latitude Nulls"] = selection["GPS:Lat"].isnull().sum()
+    stats_dict["Height Nulls"] = selection["GPS:heightMSL"].isnull().sum()
+    stats_dict["Date Nulls"] = selection["GPS:Date"].isnull().sum()
+    stats_dict["Time Nulls"] = selection["GPS:Time"].isnull().sum()
+    # count number of zeros present in columns
+    # sometimes FLYXXX.DAT files contain cells with large number of zeros
+    try:
         stats_dict["Longitude Zeros"] = selection["GPS:Long"].value_counts()[0]
-        stats_dict["Longitude Nulls"] = selection["GPS:Long"].isnull().sum()
-        
-    if selection["GPS:Lat"].notnull().values.any():
+    except:
+        stats_dict["Longitude Zeros"] = 0 
+    try:
         stats_dict["Latitude Zeros"] = selection["GPS:Lat"].value_counts()[0]
-        stats_dict["Latitude Nulls"] = selection["GPS:Lat"].isnull().sum()
-    
-    if selection["GPS:heightMSL"].notnull().values.any():
-        stats_dict["Height Zeros"] = selection["GPS:heightMSL"].value_counts()[1]
-        stats_dict["Height Nulls"] = selection["GPS:heightMSL"].isnull().sum()
-    
-
-    if selection["GPS:Date"].notnull().values.any():
+    except:
+        stats_dict["Latitude Zeros"] = 0
+    try:
+        stats_dict["Height Zeros"] = selection["GPS:heightMSL"].value_counts()[0]
+    except:
+        stats_dict["Height Zeros"] = 0
+    try:
         stats_dict["Date Zeros"] = selection["GPS:Date"].value_counts()[0]
-        stats_dict["Date Nulls"] = selection["GPS:Date"].isnull().sum()
-    
-    if selection["GPS:Time"].notnull().values.any():
+    except:
+        stats_dict["Date Zeros"] = 0
+    try:
         stats_dict["Time Zeros"] = selection["GPS:Time"].value_counts()[0]
-        stats_dict["Time Nulls"] = selection["GPS:Time"].isnull().sum()
-    
-
-
-
-    print(stats_dict)
-
-    print(num_rows)
-
-    selection.info()
-
-
-
-
-    # selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
+    except:
+        stats_dict["Time Zeros"] = 0
+    # create log file to make identifing poor quality FLYXXX.DAT files easier
+    with open("datcon_output_trim/datcon_output_trim_log.txt", "a") as f:
+        print(files[x], file = f)
+        print("--------------------", file = f)
+        for key in stats_dict:
+            print(key, " : ", stats_dict[key], file = f)
+        print("total rows : ", num_rows, file = f)
+        print("--------------------", file = f)
+    # output selections to csv for QGIS
+    selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
