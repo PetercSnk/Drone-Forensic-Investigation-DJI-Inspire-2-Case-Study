@@ -77,16 +77,12 @@ for x in range(len(files)):
         # set warning if range is large
         if long_range > 1:
             long_warning = True
-        else:
-            long_warning = False
     if lat_remove_nan.size != 0:
         lat_minima = np.min(lat_remove_nan)
         lat_maxima = np.max(lat_remove_nan)
         lat_range = lat_maxima - lat_minima
         if lat_range > 1:
             lat_warning = True
-        else:
-            lat_warning = False
     # create log file to make identifing poor quality FLYXXX.DAT files easier
     with open("datcon_output_trim/datcon_output_trim_log.txt", "a") as f:
         print(files[x], file = f)
@@ -101,6 +97,8 @@ for x in range(len(files)):
             print("WARNING large change in latitude", file = f)
             print("longitude range : ", lat_range, file = f)
         print("--------------------", file = f)
-        
+    # reset warning flags
+    long_warning = False
+    lat_warning = False
     # output selections to csv for QGIS
     selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
