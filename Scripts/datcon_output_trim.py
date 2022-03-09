@@ -67,6 +67,9 @@ for x in range(len(files)):
     # remove nan value
     long_remove_nan = long_remove_zeros[np.logical_not(np.isnan(long_remove_zeros))]
     lat_remove_nan = lat_remove_zeros[np.logical_not(np.isnan(lat_remove_zeros))]
+    # reset warning flags
+    long_warning = False
+    lat_warning = False
     # if numpy array is not empty
     if long_remove_nan.size != 0:
         # find minmia and maxima values
@@ -97,8 +100,5 @@ for x in range(len(files)):
             print("WARNING large change in latitude", file = f)
             print("longitude range : ", lat_range, file = f)
         print("--------------------", file = f)
-    # reset warning flags
-    long_warning = False
-    lat_warning = False
     # output selections to csv for QGIS
     selection.to_csv(f"datcon_output_trim/trim_{files[x]}")
