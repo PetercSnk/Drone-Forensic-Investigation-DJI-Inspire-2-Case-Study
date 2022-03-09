@@ -67,23 +67,26 @@ for x in range(len(files)):
     # remove nan value
     long_remove_nan = long_remove_zeros[np.logical_not(np.isnan(long_remove_zeros))]
     lat_remove_nan = lat_remove_zeros[np.logical_not(np.isnan(lat_remove_zeros))]
-    # find minmia and maxima values
-    long_minima = np.min(long_remove_nan)
-    long_maxima = np.max(long_remove_nan)
-    lat_minima = np.min(lat_remove_nan)
-    lat_maxima = np.max(lat_remove_nan)
-    # calculate range
-    long_range = long_maxima - long_minima
-    lat_range = lat_maxima - lat_minima
-    # set warning if range is large
-    if long_range > 1:
-        long_warning = True
-    else:
-        long_warning = False
-    if lat_range > 1:
-        lat_warning = True
-    else:
-        lat_warning = False
+    # if numpy array is not empty
+    if long_remove_nan.size != 0:
+        # find minmia and maxima values
+        long_minima = np.min(long_remove_nan)
+        long_maxima = np.max(long_remove_nan)
+        # calculate range
+        long_range = long_maxima - long_minima
+        # set warning if range is large
+        if long_range > 1:
+            long_warning = True
+        else:
+            long_warning = False
+    if lat_remove_nan.size != 0:
+        lat_minima = np.min(lat_remove_nan)
+        lat_maxima = np.max(lat_remove_nan)
+        lat_range = lat_maxima - lat_minima
+        if lat_range > 1:
+            lat_warning = True
+        else:
+            lat_warning = False
     # create log file to make identifing poor quality FLYXXX.DAT files easier
     with open("datcon_output_trim/datcon_output_trim_log.txt", "a") as f:
         print(files[x], file = f)
